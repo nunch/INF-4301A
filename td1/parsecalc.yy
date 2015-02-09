@@ -4,13 +4,9 @@
 %language "c++"
 %define api.token.prefix {TOK_}
 %define api.value.type variant
-%define api.pure full
 %locations
 %parse-param { unsigned* nerrs }
-%union
-{
-  int ival;
-}
+
 
 %code provides
 {
@@ -35,10 +31,10 @@
 %left "+" "-"
 %left "*" "/"
 
-%token <ival> INT "number"
-%type <ival> exp line
+%token <int> INT "number"
+%type <int> exp line
 
-%printer { fprintf(yyo, "%d", $$); } <ival>
+%printer { fprintf(yyo, "%d", $$); } <int>
 
 %token
   LPAREN "("

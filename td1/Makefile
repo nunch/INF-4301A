@@ -9,7 +9,7 @@ all: calc
 calc: parsecalc.o scancalc.o
 	$(CC) $^ -o $@
 
-scancalc.o: parsecalc.hh
+scancalc.o: parsecalc.h
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
