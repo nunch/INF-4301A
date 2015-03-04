@@ -287,6 +287,7 @@ namespace yy {
     {
       enum yytokentype
       {
+        TOK_EOF = 0,
         TOK_INT = 258,
         TOK_LPAREN = 259,
         TOK_MINUS = 260,
@@ -389,6 +390,10 @@ namespace yy {
     typedef basic_symbol<by_type> symbol_type;
 
     // Symbol constructors declarations.
+    static inline
+    symbol_type
+    make_EOF (const location_type& l);
+
     static inline
     symbol_type
     make_INT (const int& v, const location_type& l);
@@ -638,17 +643,17 @@ namespace yy {
 
 
 } // yy
-#line 642 "parsecalc.hh" // lalr1.cc:372
+#line 647 "parsecalc.hh" // lalr1.cc:372
 
 
 // //                    "%code provides" blocks.
-#line 13 "parsecalc.yy" // lalr1.cc:372
+#line 12 "parsecalc.yy" // lalr1.cc:372
 
 #define YY_DECL                                 \
-  enum yytokentype yylex(YYSTYPE* yylval, YYLTYPE* yylloc)
+   yy::parser::token_type yylex(yy::parser::semantic_type* yylval, yy::parser::location_type* yylloc)
   YY_DECL;
 
-#line 652 "parsecalc.hh" // lalr1.cc:372
+#line 657 "parsecalc.hh" // lalr1.cc:372
 
 
 #endif // !YY_YY_PARSECALC_HH_INCLUDED

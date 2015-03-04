@@ -1,4 +1,4 @@
-CC = clang
+CXX = clang++
 BISON = bison
 BISONFLAGS =
 FLEX = flex
@@ -7,14 +7,14 @@ FLEXFLAGS =
 all: calc
 
 calc: parsecalc.o scancalc.o
-	$(CC) $^ -o $@
+	$(CXX) $^ -o $@
 
-scancalc.o: parsecalc.h
+scancalc.o: parsecalc.hh
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.cc
+	$(CXX) $(CFLAGS) -c $< -o $@
 
-%.c: %.l
+%.cc: %.ll
 	$(FLEX) $(FLEXFLAGS) -o$@ $<
 
 %.cc: %.yy
@@ -38,7 +38,7 @@ check: calc
 
 CLEANFILES = \
   *~ *.o calc \
-  parsecalc.c parsecalc.h parsecalc.output \
+  parsecalc.c parsecalc.hh parsecalc.output \
   scancalc.c
 
 .PHONY: clean
