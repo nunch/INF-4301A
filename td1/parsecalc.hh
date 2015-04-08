@@ -39,6 +39,12 @@
 
 #ifndef YY_YY_PARSECALC_HH_INCLUDED
 # define YY_YY_PARSECALC_HH_INCLUDED
+// //                    "%code requires" blocks.
+#line 19 "parsecalc.yy" // lalr1.cc:372
+
+  #include "Exp.hh"
+
+#line 48 "parsecalc.hh" // lalr1.cc:372
 
 
 # include <vector>
@@ -114,7 +120,7 @@
 
 
 namespace yy {
-#line 118 "parsecalc.hh" // lalr1.cc:372
+#line 124 "parsecalc.hh" // lalr1.cc:372
 
 
 
@@ -261,10 +267,15 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // "number"
       // line
       // exp
-      char dummy1[sizeof(int)];
+      char dummy1[sizeof(Exp*)];
+
+      // INT
+      char dummy2[sizeof(int)];
+
+      // STRING
+      char dummy3[sizeof(std::string)];
 };
 
     /// Symbol semantic values.
@@ -289,13 +300,28 @@ namespace yy {
       {
         TOK_EOF = 0,
         TOK_INT = 258,
-        TOK_LPAREN = 259,
-        TOK_MINUS = 260,
-        TOK_PLUS = 261,
-        TOK_RPAREN = 262,
-        TOK_SLASH = 263,
-        TOK_STAR = 264,
-        TOK_EOL = 265
+        TOK_STRING = 259,
+        TOK_LPAREN = 260,
+        TOK_MINUS = 261,
+        TOK_PLUS = 262,
+        TOK_RPAREN = 263,
+        TOK_SLASH = 264,
+        TOK_STAR = 265,
+        TOK_PV = 266,
+        TOK_EOL = 267,
+        TOK_IF = 268,
+        TOK_ELSE = 269,
+        TOK_FOR = 270,
+        TOK_FROM = 271,
+        TOK_TO = 272,
+        TOK_DO = 273,
+        TOK_WHILE = 274,
+        TOK_LACO = 275,
+        TOK_RACO = 276,
+        TOK_THEN = 277,
+        TOK_VAR = 278,
+        TOK_EQUALS = 279,
+        TOK_AFFICHE = 280
       };
     };
 
@@ -330,7 +356,11 @@ namespace yy {
 
   basic_symbol (typename Base::kind_type t, const location_type& l);
 
+  basic_symbol (typename Base::kind_type t, const Exp* v, const location_type& l);
+
   basic_symbol (typename Base::kind_type t, const int v, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const std::string v, const location_type& l);
 
 
       /// Constructor for symbols with semantic value.
@@ -400,6 +430,10 @@ namespace yy {
 
     static inline
     symbol_type
+    make_STRING (const std::string& v, const location_type& l);
+
+    static inline
+    symbol_type
     make_LPAREN (const location_type& l);
 
     static inline
@@ -424,7 +458,63 @@ namespace yy {
 
     static inline
     symbol_type
+    make_PV (const location_type& l);
+
+    static inline
+    symbol_type
     make_EOL (const location_type& l);
+
+    static inline
+    symbol_type
+    make_IF (const location_type& l);
+
+    static inline
+    symbol_type
+    make_ELSE (const location_type& l);
+
+    static inline
+    symbol_type
+    make_FOR (const location_type& l);
+
+    static inline
+    symbol_type
+    make_FROM (const location_type& l);
+
+    static inline
+    symbol_type
+    make_TO (const location_type& l);
+
+    static inline
+    symbol_type
+    make_DO (const location_type& l);
+
+    static inline
+    symbol_type
+    make_WHILE (const location_type& l);
+
+    static inline
+    symbol_type
+    make_LACO (const location_type& l);
+
+    static inline
+    symbol_type
+    make_RACO (const location_type& l);
+
+    static inline
+    symbol_type
+    make_THEN (const location_type& l);
+
+    static inline
+    symbol_type
+    make_VAR (const location_type& l);
+
+    static inline
+    symbol_type
+    make_EQUALS (const location_type& l);
+
+    static inline
+    symbol_type
+    make_AFFICHE (const location_type& l);
 
 
     /// Build a parser object.
@@ -626,13 +716,13 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 29,     ///< Last index in yytable_.
+      yylast_ = 118,     ///< Last index in yytable_.
       yynnts_ = 4,  ///< Number of nonterminal symbols.
       yyempty_ = -2,
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 11  ///< Number of tokens.
+      yyntokens_ = 26  ///< Number of tokens.
     };
 
 
@@ -643,7 +733,7 @@ namespace yy {
 
 
 } // yy
-#line 647 "parsecalc.hh" // lalr1.cc:372
+#line 737 "parsecalc.hh" // lalr1.cc:372
 
 
 // //                    "%code provides" blocks.
@@ -653,7 +743,7 @@ namespace yy {
    yy::parser::token_type yylex(yy::parser::semantic_type* yylval, yy::parser::location_type* yylloc)
   YY_DECL;
 
-#line 657 "parsecalc.hh" // lalr1.cc:372
+#line 747 "parsecalc.hh" // lalr1.cc:372
 
 
 #endif // !YY_YY_PARSECALC_HH_INCLUDED

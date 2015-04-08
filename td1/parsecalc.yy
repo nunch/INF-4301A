@@ -15,22 +15,32 @@
   YY_DECL;
 }
 
-%code top
+%code requires // .hh
 {
-#include <stdio.h>
-#include <stdlib.h>
+  #include "Exp.hh"
+}
+
+%code top // .cc
+{
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <map>
+  #include <vector>
+  #include "Scope.hh"
+  
+  Variables vars;
 }
 
 
-
 %expect 0
-%left "+" "-"
-%left "*" "/"
 
-%token <int> INT "number"
-%type <int> exp line
 
-%printer { yyo << $$; } <int>
+
+%token <int> INT 
+%token <std::string> STRING
+%type <Exp*> exp line
+
+%printer { yyo << $$; } <Exp*>
 
 %token
   LPAREN "("
@@ -39,37 +49,124 @@
   RPAREN ")"
   SLASH "/"
   STAR  "*"
+  PV ";"
   EOL "end of line"
   EOF 0 "end of file"
+  IF "if"
+  ELSE "else"
+  FOR "for"
+  FROM "from"
+  TO "to"
+  DO "do"
+  WHILE "while"
+  LACO "{"
+  RACO "}"
+  THEN "then"
+  VAR "var"
+  EQUALS "="
+  AFFICHE "affiche"
+
+%right VAR 
+%right WHILE
+%right IF THEN ELSE
+%right FOR EQUALS TO DO
+%right STRING 
+%left "+" "-"
+%left "*" "/"
+%right PV
+
 %%
 input:
   %empty
-| input line  { printf("%d\n", $2); }
+| input line  { 
+                std::stringstream ss;
+                std::string s;
+                ss<<*$2;
+                s = ss.str();
+                if(s!="null"){
+                  std::cout<<*$2<<std::endl;
+                  vars.newExp($2);
+                  vars.addExp($2);
+                }
+              }
 ;
 
 line:
-  EOL       { $$ = -1; }
+  EOL       { $$ = $$=new Null(); }
 | exp EOL   { $$ = $1; }
-| error EOL { $$ = 666; yyerrok; }
+| error EOL { $$ = $$=new Null(); yyerrok; }
 ;
 
 exp:
-  exp "+" exp  { $$ = $1 + $3; }
-| exp "-" exp  { $$ = $1 - $3; }
-| exp "*" exp  { $$ = $1 * $3; }
-| exp "/" exp  {
-                 if ($3)
-                   $$ = $1 / $3;
-                 else
-                   {
-                     yy::parser::error(@3, "division by 0");
-                     YYERROR;
-                   }
-               }
+  exp "+" exp  { $$ = createBin('+',$1, $3); }
+| exp "-" exp  { $$ = createBin('-',$1, $3); }
+| exp "*" exp  { $$ = createBin('*',$1, $3); }
+| exp "/" exp  {  Engine calc;
+                  double i=(*$3)();
+                  if(i){
+                    $$ = createBin('/',$1, $3); 
+                  }else{
+                    error(@3, "division by 0");
+                    YYERROR;
+                  }
+                }
 | "(" exp ")"  { $$ = $2; }
-| "(" error ")"{ $$ = 777; }
-| INT          { $$ = $1; }
+| "(" error ")"{ $$ = createNum(777); }
+| INT          { $$ = createNum($1); }
+| IF exp THEN exp ELSE exp { $$ = createIf($2,$4,$6);}
+| IF exp THEN exp{ $$ = createIf($2,$4);}
+| FOR exp TO exp DO exp { $$ = createFor($2,$4,$4,$6);vars.newScope();vars.newVar(((Var*) $2)->name_, ((Var*) $2)->val_);}
+| WHILE exp DO exp{ $$ = createWhile($2,$4);}
+| LACO { vars.newScope(); $$=new Null(); }
+| RACO { try{
+    vars.deleteScope();
+    $$=new Null();
+  }catch(const std::string & Msg){
+    error(@1, "No more scope to quit"); YYERROR;
+  }
+}
+| VAR STRING{
+  try{
+    vars.newVar($2,0); 
+    $$=createVar($2,0);
+  }catch(const std::string& msg){
+    error(@2,msg);YYERROR;
+  }
+}
+
+| VAR STRING EQUALS exp {
+ try{
+    vars.newVar($2,(*$4)()); 
+    $$=createVar($2,(*$4)());
+  }catch(const std::string& msg){
+    error(@2,msg);YYERROR;
+  }
+}
+| STRING EQUALS exp {
+  bool res = vars.hasVar($1);
+  try{
+    if(res){
+      vars.setVar($1,(*$3)());
+      $$ = new Assignment($1,(*$3)());
+    }else{
+      error(@1, "is not an existed variable"); YYERROR;
+    }
+  }catch(const std::string & Msg){
+    error(@1, "truc de merde"); YYERROR;
+  }
+}
+| STRING { try{
+              $$ = createNum(vars.getVar($1));
+            } catch(const std::string & Msg){
+              error(@1, "not a statement"); YYERROR;
+            }
+}
+| AFFICHE {
+  vars.affiche();
+  $$=new Null();
+}
 ;
+
 
 %%
 void yy::parser::error(const location_type& loc, const std::string& msg)

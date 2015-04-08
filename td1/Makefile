@@ -1,4 +1,4 @@
-CXX = clang++
+CXX = g++ -g -std=c++0x
 BISON = bison
 BISONFLAGS =
 FLEX = flex
@@ -34,12 +34,12 @@ check: calc
 	! echo "(1" | ./calc
 	! echo "(1))" | ./calc
 
-.PRECIOUS: %.c
+.PRECIOUS: %.cc
 
 CLEANFILES = \
   *~ *.o calc \
-  parsecalc.c parsecalc.hh parsecalc.output \
-  scancalc.c
+  parsecalc.cc parsecalc.hh parsecalc.output \
+  scancalc.cc
 
 .PHONY: clean
 clean:
