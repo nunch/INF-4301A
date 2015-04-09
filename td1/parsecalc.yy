@@ -22,13 +22,15 @@
 
 %code top // .cc
 {
+  #include "Exp.hh"
   #include <stdio.h>
   #include <stdlib.h>
   #include <map>
   #include <vector>
-  #include "Scope.hh"
   
   Variables vars;
+  Variables* Engine::vars2 = &vars;
+
 }
 
 
@@ -38,6 +40,7 @@
 
 %token <int> INT 
 %token <std::string> STRING
+%token <std::string> STDSTRING
 %type <Exp*> exp line
 
 %printer { yyo << $$; } <Exp*>
@@ -71,6 +74,7 @@
 %right IF THEN ELSE
 %right FOR EQUALS TO DO
 %right STRING 
+%right STDSTRING 
 %left "+" "-"
 %left "*" "/"
 %right PV
@@ -115,7 +119,7 @@ exp:
 | INT          { $$ = createNum($1); }
 | IF exp THEN exp ELSE exp { $$ = createIf($2,$4,$6);}
 | IF exp THEN exp{ $$ = createIf($2,$4);}
-| FOR exp TO exp DO exp { $$ = createFor($2,$4,$4,$6);vars.newScope();vars.newVar(((Var*) $2)->name_, ((Var*) $2)->val_);}
+| FOR exp TO exp DO exp { $$ = createFor($2,$4,$4,$6);vars.newScope();vars.newVar(((Var*) $2)->name_, $2);}
 | WHILE exp DO exp{ $$ = createWhile($2,$4);}
 | LACO { vars.newScope(); $$=new Null(); }
 | RACO { try{
@@ -127,8 +131,8 @@ exp:
 }
 | VAR STRING{
   try{
-    vars.newVar($2,0); 
-    $$=createVar($2,0);
+    vars.newVar($2,createNum(0)); 
+    $$=createVar($2,createNum(0));
   }catch(const std::string& msg){
     error(@2,msg);YYERROR;
   }
@@ -136,8 +140,8 @@ exp:
 
 | VAR STRING EQUALS exp {
  try{
-    vars.newVar($2,(*$4)()); 
-    $$=createVar($2,(*$4)());
+    vars.newVar($2,$4); 
+    $$=createVar($2,$4);
   }catch(const std::string& msg){
     error(@2,msg);YYERROR;
   }
@@ -146,8 +150,8 @@ exp:
   bool res = vars.hasVar($1);
   try{
     if(res){
-      vars.setVar($1,(*$3)());
-      $$ = new Assignment($1,(*$3)());
+      vars.setVar($1,$3);
+      $$ = new Assignment($1,$3);
     }else{
       error(@1, "is not an existed variable"); YYERROR;
     }
@@ -156,11 +160,12 @@ exp:
   }
 }
 | STRING { try{
-              $$ = createNum(vars.getVar($1));
+              $$ = new ShowVar(vars.getVar($1));
             } catch(const std::string & Msg){
               error(@1, "not a statement"); YYERROR;
             }
 }
+| STDSTRING { $$ = new StringExp($1);}
 | AFFICHE {
   vars.affiche();
   $$=new Null();
@@ -176,9 +181,13 @@ void yy::parser::error(const location_type& loc, const std::string& msg)
   *nerrs += 1;
 }
 
+
+
 int main()
 {
   //yydebug = !!getenv("YYDEBUG");
+  std::cout << Engine::vars2 << std::endl;
+  std::cout << &vars << std::endl;
   unsigned nerrs = 0;
   yy::parser parser(&nerrs);
   nerrs += !!parser.parse();
