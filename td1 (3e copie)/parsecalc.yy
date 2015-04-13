@@ -30,6 +30,7 @@
   
   Variables vars;
   Variables* Engine::vars2 = &vars;
+  bool isInLoop = false;
 
 }
 

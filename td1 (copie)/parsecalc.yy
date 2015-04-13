@@ -40,7 +40,6 @@
 
 %token <int> INT 
 %token <std::string> STRING
-%token <std::string> STDSTRING
 %type <Exp*> exp line
 
 %printer { yyo << $$; } <Exp*>
@@ -74,7 +73,6 @@
 %right IF THEN ELSE
 %right FOR EQUALS TO DO
 %right STRING 
-%right STDSTRING 
 %left "+" "-"
 %left "*" "/"
 %right PV
@@ -119,7 +117,7 @@ exp:
 | INT          { $$ = createNum($1); }
 | IF exp THEN exp ELSE exp { $$ = createIf($2,$4,$6);}
 | IF exp THEN exp{ $$ = createIf($2,$4);}
-| FOR exp TO exp DO exp { $$ = createFor($2,$4,$4,$6);vars.newScope();vars.newVar(((Var*) $2)->name_, $2);}
+| FOR exp TO exp DO exp { $$ = createFor($2,$4,$4,$6);vars.newScope();vars.newVar(((Var*) $2)->name_, ((Var*) $2)->val_);}
 | WHILE exp DO exp{ $$ = createWhile($2,$4);}
 | LACO { vars.newScope(); $$=new Null(); }
 | RACO { try{
@@ -131,8 +129,8 @@ exp:
 }
 | VAR STRING{
   try{
-    vars.newVar($2,createNum(0)); 
-    $$=createVar($2,createNum(0));
+    vars.newVar($2,0); 
+    $$=createVar($2,0);
   }catch(const std::string& msg){
     error(@2,msg);YYERROR;
   }
@@ -140,8 +138,8 @@ exp:
 
 | VAR STRING EQUALS exp {
  try{
-    vars.newVar($2,$4); 
-    $$=createVar($2,$4);
+    vars.newVar($2,(*$4)()); 
+    $$=createVar($2,(*$4)());
   }catch(const std::string& msg){
     error(@2,msg);YYERROR;
   }
@@ -150,8 +148,8 @@ exp:
   bool res = vars.hasVar($1);
   try{
     if(res){
-      vars.setVar($1,$3);
-      $$ = new Assignment($1,$3);
+      vars.setVar($1,(*$3)());
+      $$ = new Assignment($1,(*$3)());
     }else{
       error(@1, "is not an existed variable"); YYERROR;
     }
@@ -160,12 +158,11 @@ exp:
   }
 }
 | STRING { try{
-              $$ = new ShowVar(vars.getVar($1));
+              $$ = createNum(vars.getVar($1));
             } catch(const std::string & Msg){
               error(@1, "not a statement"); YYERROR;
             }
 }
-| STDSTRING { $$ = new StringExp($1);}
 | AFFICHE {
   vars.affiche();
   $$=new Null();

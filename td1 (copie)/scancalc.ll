@@ -31,8 +31,7 @@
 "{"			return yy::parser::token::TOK_LACO;
 "}"			return yy::parser::token::TOK_RACO;
 "affiche"	return yy::parser::token::TOK_AFFICHE;
-"\""[a-zA-Z][a-zA-Z0-9]+"\"" yylval->build<std::string>(yytext); return yy::parser::token::TOK_STDSTRING;
-[a-zA-Z][a-zA-Z0-9]+	yylval->build<std::string>(yytext); return yy::parser::token::TOK_STRING;
+[a-zA-Z][a-zA-Z0-9]	yylval->build<std::string>(yytext); return yy::parser::token::TOK_STRING;
 [a-zA-Z]	yylval->build<std::string>(yytext); return yy::parser::token::TOK_STRING;
 [0-9]+    	yylval->build<int>(strtol(yytext, 0,10));return yy::parser::token::TOK_INT;
 "."			std::cerr << "error: invalid character: "<<yytext;	

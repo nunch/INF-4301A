@@ -1,13 +1,11 @@
-#ifndef SCOPE_HH
-#define SCOPE_HH
-	
+#ifndef VARIABLES_HH
+#define VARIABLES_HH value
 	#include <map>
 	#include <vector>
 	#include <string>
 	#include <iostream>
 	#include <sstream>
 	#include "Exp.hh"
-	
-	
 
+	
 #endif	

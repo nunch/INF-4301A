@@ -30,6 +30,13 @@
   
   Variables vars;
   Variables* Engine::vars2 = &vars;
+  Engine engine;
+  bool isInLoop = false;
+  bool startLoop = false;
+  bool stopLoop = false;
+  
+  std::vector<Exp*> loops;
+  std::map<int , std::vector<Exp*> > map;
 
 }
 
@@ -91,6 +98,13 @@ input:
                   std::cout<<*$2<<std::endl;
                   vars.newExp($2);
                   vars.addExp($2);
+                }
+                if(stopLoop){
+
+                }
+
+                if(!isInLoop){
+                  $2.accept(engine);
                 }
               }
 ;

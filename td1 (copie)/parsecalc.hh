@@ -275,7 +275,6 @@ namespace yy {
       char dummy2[sizeof(int)];
 
       // STRING
-      // STDSTRING
       char dummy3[sizeof(std::string)];
 };
 
@@ -302,28 +301,27 @@ namespace yy {
         TOK_EOF = 0,
         TOK_INT = 258,
         TOK_STRING = 259,
-        TOK_STDSTRING = 260,
-        TOK_LPAREN = 261,
-        TOK_MINUS = 262,
-        TOK_PLUS = 263,
-        TOK_RPAREN = 264,
-        TOK_SLASH = 265,
-        TOK_STAR = 266,
-        TOK_PV = 267,
-        TOK_EOL = 268,
-        TOK_IF = 269,
-        TOK_ELSE = 270,
-        TOK_FOR = 271,
-        TOK_FROM = 272,
-        TOK_TO = 273,
-        TOK_DO = 274,
-        TOK_WHILE = 275,
-        TOK_LACO = 276,
-        TOK_RACO = 277,
-        TOK_THEN = 278,
-        TOK_VAR = 279,
-        TOK_EQUALS = 280,
-        TOK_AFFICHE = 281
+        TOK_LPAREN = 260,
+        TOK_MINUS = 261,
+        TOK_PLUS = 262,
+        TOK_RPAREN = 263,
+        TOK_SLASH = 264,
+        TOK_STAR = 265,
+        TOK_PV = 266,
+        TOK_EOL = 267,
+        TOK_IF = 268,
+        TOK_ELSE = 269,
+        TOK_FOR = 270,
+        TOK_FROM = 271,
+        TOK_TO = 272,
+        TOK_DO = 273,
+        TOK_WHILE = 274,
+        TOK_LACO = 275,
+        TOK_RACO = 276,
+        TOK_THEN = 277,
+        TOK_VAR = 278,
+        TOK_EQUALS = 279,
+        TOK_AFFICHE = 280
       };
     };
 
@@ -433,10 +431,6 @@ namespace yy {
     static inline
     symbol_type
     make_STRING (const std::string& v, const location_type& l);
-
-    static inline
-    symbol_type
-    make_STDSTRING (const std::string& v, const location_type& l);
 
     static inline
     symbol_type
@@ -722,13 +716,13 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 128,     ///< Last index in yytable_.
+      yylast_ = 118,     ///< Last index in yytable_.
       yynnts_ = 4,  ///< Number of nonterminal symbols.
       yyempty_ = -2,
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 27  ///< Number of tokens.
+      yyntokens_ = 26  ///< Number of tokens.
     };
 
 
@@ -739,7 +733,7 @@ namespace yy {
 
 
 } // yy
-#line 743 "parsecalc.hh" // lalr1.cc:372
+#line 737 "parsecalc.hh" // lalr1.cc:372
 
 
 // //                    "%code provides" blocks.
@@ -749,7 +743,7 @@ namespace yy {
    yy::parser::token_type yylex(yy::parser::semantic_type* yylval, yy::parser::location_type* yylloc)
   YY_DECL;
 
-#line 753 "parsecalc.hh" // lalr1.cc:372
+#line 747 "parsecalc.hh" // lalr1.cc:372
 
 
 #endif // !YY_YY_PARSECALC_HH_INCLUDED

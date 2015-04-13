@@ -17,26 +17,23 @@
 	class Sequence;
 	class Assignment;
 	class Null;
-	class StringExp;
-	class ShowVar;
 
 	
-	template <typename T>
+
 	class Visitor
 	{
 	public:
-		virtual T visitBin(const Bin& exp) = 0;
-		virtual T visitNum(const Num& exp) = 0;
-		virtual T visitIf(const IfExp& exp) = 0;
-		virtual T visitVar(const Var& exp) = 0;
-		virtual T visitShowVar(const ShowVar& exp) = 0;
-		virtual T visitStringExp(const StringExp& exp) = 0;
-		virtual T visitAco(const Aco& exp) = 0;
-		virtual T visitFor(const ForExp& exp) = 0;
-		virtual T visitWhile(const WhileExp& exp) = 0;
-		virtual T visitSequence(const Sequence& exp) = 0;
-		virtual T visitAss(const Assignment& exp) = 0;
-		virtual T visitNull(const Null& exp) = 0;
+		virtual int visitBin(const Bin& exp) = 0;
+		virtual int visitNum(const Num& exp) = 0;
+		virtual int visitIf(const IfExp& exp) = 0;
+		virtual int visitVar(const Var& exp) = 0;
+		virtual int visitAco(const Aco& exp) = 0;
+		virtual int visitFor(const ForExp& exp) = 0;
+		virtual int visitWhile(const WhileExp& exp) = 0;
+		virtual int visitSequence(const Sequence& exp) = 0;
+		virtual int visitAss(const Assignment& exp) = 0;
+		virtual int visitNull(const Null& exp) = 0;
+
 	};
 
 	class Exp
@@ -46,8 +43,7 @@
 		Exp(const Exp& rhs) {};
 	public:
 		virtual ~Exp() {};
-		virtual int accept(Visitor<int>& v) const{return 0;};
-		virtual void accept(Visitor<void>& v) const{};
+		virtual int accept(Visitor& v) const{return 0;};
 		int operator()();
 	};
 
@@ -58,11 +54,8 @@
 		: Exp(), oper_(oper), lhs_(lhs), rhs_(rhs)
 		{};
 		~Bin() { delete lhs_; delete rhs_; }
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitBin(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitBin(*this);
 		}
 		friend std::ostream& operator<<(std::ostream& o, const Bin& tree);
 	public:
@@ -78,16 +71,12 @@
 		: Exp(),val_(val)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const Num& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitNum(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitNum(*this);
 		}
 
 		int val_;
 	};
-
 
 	class Aco : public Exp
 	{
@@ -96,11 +85,8 @@
 		: Exp(),aco_(aco)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const Aco& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitAco(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitAco(*this);
 		}
 		char aco_;
 	};
@@ -108,69 +94,28 @@
 	class Var : public Exp
 	{
 	public:
-		Var(std::string s,Exp* val)
+		Var(std::string s,int val)
 		: Exp(),val_(val),name_(s)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const Var& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitVar(*this);
 		}
-		void accept(Visitor<void>& v) const {
-			v.visitVar(*this);
-		}
-		Exp* val_;
+		int val_;
 		std::string name_;
 	};
-
-	class ShowVar : public Exp
-	{
-	public:
-		ShowVar(Exp* val)
-		: Exp(),val_(val)
-		{};
-		friend std::ostream& operator<<(std::ostream& o, const ShowVar& tree);
-		int accept(Visitor<int>& v) const {
-			return v.visitShowVar(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitShowVar(*this);
-		}
-		Exp* val_;
-	};
-
-
-	class StringExp : public Exp
-	{
-	public:
-		StringExp(std::string val)
-		: Exp(),val_(val)
-		{};
-		friend std::ostream& operator<<(std::ostream& o, const StringExp& tree);
-		int accept(Visitor<int>& v) const {
-			return v.visitStringExp(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitStringExp(*this);
-		}
-
-		std::string val_;
-	};
-
 
 	class Assignment : public Exp
 	{
 	public:
-		Assignment(std::string var, Exp* val):Exp(),var_(var),val_(val){};
+		Assignment(std::string var, int val):Exp(),var_(var),val_(val){};
 		~Assignment(){};
 		friend std::ostream& operator<<(std::ostream& o, const Assignment& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitAss(*this);
 		}
-		void accept(Visitor<void>& v) const {
-			v.visitAss(*this);
-		}
 		std::string var_;
-		Exp* val_;
+		int val_;
 	};
 
 	class IfExp : public Exp
@@ -179,12 +124,10 @@
 		IfExp(Exp* cond, Exp* then,Exp* els):Exp(),cond_(cond),then_(then),els_(els),hasElse(1){};
 		IfExp(Exp* cond, Exp* then):Exp(),cond_(cond),then_(then),els_(NULL),hasElse(0){};
 
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitIf(*this);
 		}
-		void accept(Visitor<void>& v) const {
-			v.visitIf(*this);
-		}
+
 		friend std::ostream& operator<<(std::ostream& o, const IfExp& tree);
 
 		Exp* cond_;
@@ -199,11 +142,8 @@
 		ForExp(Exp* var, Exp* from, Exp* to, Exp* doo):Exp(),var_(var),from_(from),to_(to),do_(doo){};
 		~ForExp(){};
 		friend std::ostream& operator<<(std::ostream& o, const ForExp& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitFor(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitFor(*this);
 		}
 		Exp* var_;
 		Exp* from_;
@@ -217,11 +157,8 @@
 		WhileExp(Exp* cond, Exp* doo):Exp(),cond_(cond),do_(doo){};
 		~WhileExp(){};
 		friend std::ostream& operator<<(std::ostream& o, const WhileExp& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitWhile(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitWhile(*this);
 		}
 		Exp* cond_;
 		Exp* do_;
@@ -230,16 +167,14 @@
 	class Sequence : public Exp
 	{
 	public:
-		Sequence(std::vector<Exp*> e):Exp(),exps(e){};
+		Sequence(Exp* e1, Exp* e2):Exp(),e1_(e1),e2_(e2){};
 		~Sequence(){};
 		friend std::ostream& operator<<(std::ostream& o, const Sequence& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitSequence(*this);
 		}
-		void accept(Visitor<void>& v) const {
-			v.visitSequence(*this);
-		}
-		std::vector<Exp*> exps;
+		Exp* e1_;
+		Exp* e2_;
 	};
 
 	class Null : public Exp
@@ -248,31 +183,31 @@
 		Null():Exp(){};
 		~Null(){};
 		friend std::ostream& operator<<(std::ostream& o, const Null& tree);
-		int accept(Visitor<int>& v) const {
+		int accept(Visitor& v) const {
 			return v.visitNull(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitNull(*this);
 		}
 	};
 
 
-	class PrettyPrinter : public Visitor<void>
+	class PrettyPrinter : public Visitor
 	{
 	public:
 		PrettyPrinter(std::ostream& ostr)
 		: ostr_(ostr) {};
-		void visitBin(const Bin& e) {
+		int visitBin(const Bin& e) {
+			ostr_ << '('; 
 			e.lhs_->accept(*this);
 			ostr_ << e.oper_;
 			e.rhs_->accept(*this); 
+			ostr_ << ')';
+			return 0;
 		}
-
-		void visitNum(const Num& e) {
+		int visitNum(const Num& e) {
 			ostr_ << e.val_;
+			return 0;
 		}
 
-		void visitIf(const IfExp& e){
+		int visitIf(const IfExp& e){
 			if(e.hasElse==1){
 				ostr_<<"if ";
 				e.cond_->accept(*this);
@@ -286,57 +221,57 @@
 				ostr_<< " then ";
 				e.then_->accept(*this);
 			}
+			return 0;
 		}
 
-		void visitVar(const Var& e) {
+		int visitVar(const Var& e) {
 			ostr_ << "var ";
 			ostr_ << e.name_;
 			ostr_ << " = ";
-			e.val_->accept(*this);
-		}
-
-		void visitShowVar(const ShowVar& e) {
-			e.val_->accept(*this);
-		}
-
-		void visitStringExp(const StringExp& e) {
 			ostr_ << e.val_;
+			return 0;
 		}
 
-		void visitAco(const Aco& e){
+		int visitAco(const Aco& e){
 			ostr_<<e.aco_;
+			return 0;
 		}
 
-		void visitFor(const ForExp& e){
+		int visitFor(const ForExp& e){
 			ostr_<<"for ";
 			e.var_->accept(*this);
 			ostr_<<" to ";
 			e.to_->accept(*this);
 			ostr_<<" do ";
 			e.do_->accept(*this);
+			return 0;
 		}
 
-		void visitWhile(const WhileExp& e){
+		int visitWhile(const WhileExp& e){
 			ostr_<<"while ";
 			e.cond_->accept(*this);
 			ostr_<<" do ";
 			e.do_->accept(*this);
+			return 0;
 		}
 
-		void visitSequence(const Sequence& e){
+		int visitSequence(const Sequence& e){
 			e.e1_->accept(*this);
 			ostr_<<", ";
 			e.e2_->accept(*this);
+			return 0;
 		}
 
-		void visitAss(const Assignment& e){
+		int visitAss(const Assignment& e){
 			ostr_<<e.var_;
 			ostr_<<" = ";
-			e.val_->accept(*this);
+			ostr_<<e.val_;
+			return 0;
 		}
 
-		void visitNull(const Null& e){
+		int visitNull(const Null& e){
 			ostr_<<"null";
+			return 0;
 		}
 	private:
 		std::ostream& ostr_;
@@ -376,7 +311,7 @@
 		return new IfExp(e1,e2,e3);
 	}
 
-	inline Exp* createVar(std::string s,Exp* i){
+	inline Exp* createVar(std::string s,int i){
 		return new Var(s,i);
 	}
 
@@ -505,7 +440,7 @@
 			actual = tmp;
 		}
 
-		void newVar(std::string s, Exp* i){
+		void newVar(std::string s, int i){
 			if(vars[scopes.back()].count(s)==1){
 				throw std::string("variable "+s+" already exists");
 			}
@@ -524,9 +459,9 @@
 			std::cout<<first<<std::endl;
 		}
 
-		void setVar(std::string s, Exp* i){
+		void setVar(std::string s, int i){
 			for(auto it = scopes.rbegin();it!=scopes.rend();it++){
-				std::map<std::string,Exp*> v = vars[*it];
+				std::map<std::string,int> v = vars[*it];
 				int truc = v.count(s);
 				if(truc==1) {
 					vars[*it][s]=i;
@@ -537,9 +472,9 @@
 			
 		}
 
-		Exp* getVar(std::string s){
+		int getVar(std::string s){
 			for(auto it = scopes.rbegin();it!=scopes.rend();it++){
-				std::map<std::string,Exp*> v = vars[*it];
+				std::map<std::string,int> v = vars[*it];
 				int truc = v .count(s);
 				if(truc!=0) {
 					return v[s];
@@ -550,7 +485,7 @@
 
 		bool hasVar(std::string s){
 			for(auto it = scopes.rbegin();it!=scopes.rend();it++){
-				std::map<std::string,Exp*> v = vars[*it];
+				std::map<std::string,int> v = vars[*it];
 				int truc = v.count(s);
 				if(truc!=0) return true;
 			}
@@ -581,31 +516,23 @@
 			actualLoop--;
 		}
 
-		int isInLoop(){
-			return actualLoop>0;
-		}
-
 	private:
 		std::vector<Scope*> scopes;
-		std::map<Scope*,std::map<std::string,Exp*> > vars;
+		std::map<Scope*,std::map<std::string,int> > vars;
 		std::vector<GroupeScope*> scop;
-
-
 		std::map<Scope*, std::vector<Exp*> > exps;
 		GroupeScope* first;
 		GroupeScope* actual;
 		std::vector<GroupeScope*> previous;
 		
-		GroupeScope* firstLoop;
-		GroupeScope* actualLoop;
-		std::vector<GroupeScope*> previousLoop;
+		std::map<int, std::vector<std::vector<Exp*> > > loop;
 		int actualLoop;
 	};
 	
-	class Calculator : public Visitor<int>
+	class Engine : public Visitor
 	{
 	public:
-		Calculator(){};
+		Engine(){};
 		int visitBin(const Bin& e) {
 			if(e.oper_=='+') return e.lhs_->accept(*this)+e.rhs_->accept(*this);
 			else if(e.oper_=='-') return e.lhs_->accept(*this)-e.rhs_->accept(*this); 
@@ -628,21 +555,13 @@
 		}
 
 		int visitVar(const Var& e) {
-			return e.val_->accept(*this);
-		}
-
-		int visitShowVar(const ShowVar& e) {
-			return e.val_->accept(*this);
+			return e.val_;
 		}
 
 		int visitAco(const Aco& e){
 			return 0;
 		}
 		int visitFor(const ForExp& exp){
-			return 0;
-		}
-
-		int visitStringExp(const StringExp& e) {
 			return 0;
 		}
 
@@ -655,7 +574,7 @@
 		}
 
 		int visitAss(const Assignment& e){
-			return e.val_->accept(*this);
+			return e.val_;
 		}
 
 		int visitNull(const Null& e){
@@ -665,74 +584,9 @@
 		static Variables* vars2;
 	};
 
-	class Engine : public Visitor<void>
-	{
-	public:
-		Engine(){};
-		void visitBin(const Bin& e) {
-			
-		}
-		
-		void visitNum(const Num& e) {
-			
-		}
-
-		void visitIf(const IfExp& e){
-			int cond = (*e.cond_)();
-			if(cond){
-				e.then_->accept(*this);
-			}else if(e.hasElse==1){
-				e.els_->accept(*this);
-			}
-		}
-
-		void visitVar(const Var& e) {
-			
-		}
-
-		void visitShowVar(const ShowVar& e) {
-			
-		}
-
-		void visitAco(const Aco& e){
-			
-		}
-		
-		void visitFor(const ForExp& e){
-			for(int i=(*e.var_)();i<(*e.to_)();i++){
-				vars2->setVar(((Var*)e.var_)->name_, new Num(i));
-				e.do_->accept(*this);
-			}
-		}
-
-		void visitStringExp(const StringExp& e) {
-			
-		}
-
-		void visitWhile(const WhileExp& e){
-			while((*e.cond_)()){
-				e.do_->accept(*this);
-			}
-		}
-
-		void visitSequence(const Sequence& e){
-			
-		}
-
-		void visitAss(const Assignment& e){
-
-			vars2->setVar(e.var_,e.val_);
-		}
-
-		void visitNull(const Null& e){
-		}
-
-		static Variables* vars2;
-	};
-
 	inline int Exp::operator()()
 	{
-		Calculator calc;
+		Engine calc;
 		return this->accept(calc);
 	}
 

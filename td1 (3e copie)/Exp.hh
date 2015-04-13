@@ -230,7 +230,7 @@
 	class Sequence : public Exp
 	{
 	public:
-		Sequence(std::vector<Exp*> e):Exp(),exps(e){};
+		Sequence(Exp* e1, Exp* e2):Exp(),e1_(e1),e2_(e2){};
 		~Sequence(){};
 		friend std::ostream& operator<<(std::ostream& o, const Sequence& tree);
 		int accept(Visitor<int>& v) const {
@@ -239,7 +239,8 @@
 		void accept(Visitor<void>& v) const {
 			v.visitSequence(*this);
 		}
-		std::vector<Exp*> exps;
+		Exp* e1_;
+		Exp* e2_;
 	};
 
 	class Null : public Exp
@@ -720,7 +721,6 @@
 		}
 
 		void visitAss(const Assignment& e){
-
 			vars2->setVar(e.var_,e.val_);
 		}
 

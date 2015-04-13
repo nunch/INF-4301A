@@ -1,4 +1,4 @@
-	#include "Exp.hh"
+#include "Exp.hh"
 //#include "Scope.hh"
 #include <iostream>
 #include <vector>
@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
 	v.push_back(s4);
 	v.push_back(s5);
 	v.push_back(s6);
-	for(auto it = v.begin();it!=v.end();it++) std::cout<<*it;b
+	for(auto it = v.begin();it!=v.end();it++) std::cout<<*it;
 		std::cout<<std::endl;*/
 	GroupeScope* e1 = new GroupeScope(1);
 	GroupeScope* e2 = new GroupeScope(2);
@@ -41,15 +41,15 @@ int main(int argc, char const *argv[])
 	GroupeScope* e4 = new GroupeScope(3);
 	GroupeScope* e5 = new GroupeScope(4);
 
-	SousScope* s1 = new SousScope(new Var("1",new StringExp("truc")),1);
-	SousScope* s2 = new SousScope(new Var("2",new Num(2)),1);
-	SousScope* s3 = new SousScope(new Var("3",new Num(3)),1);
-	SousScope* s4 = new SousScope(new Var("4",new Num(4)),2);
-	SousScope* s5 = new SousScope(new Var("5",new Num(5)),2);
-	SousScope* s6 = new SousScope(new Var("6",new Num(6)),3);
-	SousScope* s7 = new SousScope(new Var("7",new Num(7)),3);
-	SousScope* s8 = new SousScope(new Var("8",new Num(8)),4);
-	SousScope* s9 = new SousScope(new Var("9",new Num(9)),1);
+	SousScope* s1 = new SousScope(new Var("1",1),1);
+	SousScope* s2 = new SousScope(new Var("2",2),1);
+	SousScope* s3 = new SousScope(new Var("3",3),1);
+	SousScope* s4 = new SousScope(new Var("4",4),2);
+	SousScope* s5 = new SousScope(new Var("5",5),2);
+	SousScope* s6 = new SousScope(new Var("6",6),3);
+	SousScope* s7 = new SousScope(new Var("7",7),3);
+	SousScope* s8 = new SousScope(new Var("8",8),4);
+	SousScope* s9 = new SousScope(new Var("9",9),1);
 
 	e1->addScope(s1);
 	e1->addScope(e2);
