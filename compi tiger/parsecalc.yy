@@ -56,7 +56,6 @@
 %token <std::string> STRING
 %token <std::string> STDSTRING
 %token <char*> FILENAME
-%token <std::string> FUNCTION
 %type <Exp*> exp line
 %type <Sequence*> exps
 
@@ -90,6 +89,9 @@
   END "end"
   VIR ","
   IMPORT "import"
+  CLASS "class"
+  FUNCTION "function"
+  METHOD "method"
 %right STRING 
 %right "(" ")"
 %right VAR VIR 
@@ -161,9 +163,7 @@ exp:
 | RACO { $$=new Null(); }
 | IMPORT FILENAME {
   $$ = new Null();
-  FILE* f = fopen($2,"r");
-  std::cout << "file " <<  f << " " <<  stdin << std::endl;
-  yyset_in(f);
+  freopen($2,"r",stdin);
 }
 | VAR STRING EQUALS exp {
  try{
@@ -234,7 +234,27 @@ exp:
     error(@1, "in can only be used in a head"); YYERROR;
   }
 }
+| CLASS STRING LACO exps RACO EQUALS{
+  $$=new Null();
+}
+| CLASS STRING LACO RACO EQUALS{
+  $$=new Null();
+}
+| FUNCTION STRING LACO exps RACO EQUALS exp{
+  $$=new Null();
+}
+| FUNCTION STRING LACO RACO EQUALS exp{
+  $$=new Null();
+}
+| METHOD STRING LACO exps RACO EQUALS exp{
+  $$=new Null();
+}
+| METHOD STRING LACO RACO EQUALS exp{
+  $$=new Null();
+}
 ;
+
+
 
 exps:
 exp {$$ = new Sequence($1);}
@@ -259,10 +279,12 @@ int main()
   std::cout << Engine::vars2 << std::endl;
   std::cout << &vars << std::endl;
   unsigned nerrs =0;
+  /*
   FILE* f = fopen("t.t","r");
   #define YY_STDINIT
   yyset_in(f);
   yyset_out(stdout);
+  */
   yy::parser parser(&nerrs);
   nerrs += !!parser.parse();
 

@@ -21,8 +21,11 @@
 	class LetExp;
 	class InExp;
 	class EndExp;
+	class FunctionExp;
 	class GroupeScope;
 	class Sequence;
+	class Function;
+	class ExecuteFunction;
 
 	
 	template <typename T>
@@ -44,6 +47,8 @@
 		virtual T visitIn(const InExp& exp) = 0;
 		virtual T visitEnd(const EndExp& exp) = 0;
 		virtual T visitSequence(const Sequence& exp) = 0;
+		virtual T visitFunction(const FunctionExp& exp) = 0;
+		virtual T visitExecuteFunction(const ExecuteFunction& exp) = 0;
 
 	};
 
@@ -66,6 +71,8 @@
 		virtual T visitIn( InExp& exp) = 0;
 		virtual T visitEnd( EndExp& exp) = 0;
 		virtual T visitSequence( Sequence& exp) = 0;
+		virtual T visitFunction(FunctionExp& exp) = 0;
+		virtual T visitExecuteFunction(ExecuteFunction& exp) = 0;
 
 	};
 
@@ -116,10 +123,10 @@
 	{
 	public:
 		Num(int val)
-		: Exp("Num"),val_(val)
+		: Exp("int"),val_(val)
 		{};
 		Num(Num& val)
-		: Exp("Num"),val_(val.val_)
+		: Exp("int"),val_(val.val_)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const Num& tree);
 		int accept(Visitor<int>& v) const {
@@ -163,10 +170,10 @@
 	{
 	public:
 		Var(std::string s,Exp* val)
-		: Exp("Val"),val_(val),name_(s)
+		: Exp(val->type),val_(val),name_(s)
 		{};
 		Var(Var& v)
-		: Exp("Val"),val_(v.val_),name_(v.name_)
+		: Exp(v.type),val_(v.val_),name_(v.name_)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const Var& tree);
 		int accept(Visitor<int>& v) const {
@@ -187,10 +194,10 @@
 	{
 	public:
 		ShowVar(std::string s,Exp* val)
-		: Exp("ShowVar"),val_(val),name_(s)
+		: Exp(val->type),val_(val),name_(s)
 		{};
 		ShowVar(ShowVar& v)
-		: Exp("ShowVar"),val_(v.val_),name_(v.name_)
+		: Exp(v.type),val_(v.val_),name_(v.name_)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const ShowVar& tree);
 		int accept(Visitor<int>& v) const {
@@ -279,10 +286,10 @@
 	{
 	public:
 		StringExp(std::string val)
-		: Exp("String"),val_(val)
+		: Exp("string"),val_(val)
 		{};
 		StringExp(StringExp& val)
-		: Exp("String"),val_(val.val_)
+		: Exp("string"),val_(val.val_)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const StringExp& tree);
 		int accept(Visitor<int>& v) const {
@@ -403,6 +410,8 @@
 		}
 	};
 
+	
+
 	class Sequence : public Exp
 	{
 	public:
@@ -424,7 +433,9 @@
 		std::vector<Exp*> vector;
 	};
 
-
+	#include "Function.hh"
+	
+	#include "Class.hh"
 	#include "Pretty_printer.hh"
 
 	
@@ -472,10 +483,8 @@
 		for(int i=0;i<n;i++) v.pop_back();
 		return v;
 	}
-
+	
 	#include "Scope.hh"
-	#include "Function.hh"
-	#include "Class.hh"
 	#include "Ressources.hh"
 	#include "Visitor.hh"
 #endif

@@ -6,11 +6,14 @@
 #include <string>
 #include <typeinfo>
 #include <stdio.h>
+ #include <unistd.h>
 
 Ressources vars;
 Ressources* Engine::vars2 = &vars;
-  Ressources* Calculator::vars2 = &vars;
- Calculator calc;
+Ressources* Calculator::vars2 = &vars;
+Ressources* VisExp::vars2 = &vars;
+Calculator calc;
+ int LetExp::totalNum = -1;
 
 
 int main(int argc, char const *argv[])
@@ -120,16 +123,43 @@ int main(int argc, char const *argv[])
 	t->accept(e);
 	std::cout<<"a = "<<vars.getVar("a")->accept(calc)<<std::endl;
 	std::cout<<"b = "<<vars.getVar("b")->accept(calc)<<std::endl;*/
-
-	fprintf(stdin, "51\n");
-	fprintf(stdout, "51\n");
-
+	
+	/*int pid = fork();
+	if(pid==0){
+		freopen("myfile.txt","r",stdin);
+		scanf("%d",&a);
+		std::cout<<"fils " <<a<<std::endl;
+	}else{
+		scanf("%d",&a);
+		std::cout<<"papa " <<a<<std::endl;
+	}*/
+	/*std::cout<<stdin<<std::endl;
 	int a;
-
+	int p[2];
+	pipe(p);
+	p[0] = dup(0);
+	//int stdin_copy = dup(0);
+	//freopen("myfile.txt","r",stdin);
+	write(p[1], "52", 2*sizeof(char));
 	scanf("%d",&a);
-
 	std::cout<<a<<std::endl;
-
-
+	//dup2(stdin_copy, 0);
+	scanf("%d",&a);
+	std::cout<<a<<std::endl;*/
+	//std::stri
+	Engine engine;
+	std::string a("truc"),b("gjbf");
+	Function* f = new Function(a,b,{"a1","a2","a3"}, {"int","string","int"},new ShowVar("a1",new Num(5)));
+	Exp* e = new FunctionExp(f);
+	e->accept(engine);
+	Exp* e1 = new ExecuteFunction(a,{new Num(1), new StringExp("2"),new Num(2)});
+	Exp* e2 = new Var("ab",new Num(0));
+	e2->accept(engine);
+	std::cout<<*vars.getVar("ab")<<std::endl;
+	vars.setVar("ab",new Num(5));
+	Exp* e3 = new Assignment("ab",e1);
+	try{e3->accept(engine);} catch(const std::string& e){std::cout << e<<std::endl;}
+	std::cout<<*vars.getVar("ab")<<std::endl;
+	
 	return 0;
 }

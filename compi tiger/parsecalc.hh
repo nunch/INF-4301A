@@ -282,7 +282,7 @@ namespace yy {
 
       // STRING
       // STDSTRING
-      // FUNCTION
+      // "function"
       char dummy5[sizeof(std::string)];
 };
 
@@ -337,7 +337,8 @@ namespace yy {
         TOK_IN = 285,
         TOK_END = 286,
         TOK_VIR = 287,
-        TOK_IMPORT = 288
+        TOK_IMPORT = 288,
+        TOK_CLASS = 289
       };
     };
 
@@ -568,6 +569,10 @@ namespace yy {
     symbol_type
     make_IMPORT (const location_type& l);
 
+    static inline
+    symbol_type
+    make_CLASS (const location_type& l);
+
 
     /// Build a parser object.
     parser (unsigned* nerrs_yyarg);
@@ -768,13 +773,13 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 147,     ///< Last index in yytable_.
+      yylast_ = 217,     ///< Last index in yytable_.
       yynnts_ = 5,  ///< Number of nonterminal symbols.
       yyempty_ = -2,
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 34  ///< Number of tokens.
+      yyntokens_ = 35  ///< Number of tokens.
     };
 
 
@@ -785,7 +790,7 @@ namespace yy {
 
 
 } // yy
-#line 789 "parsecalc.hh" // lalr1.cc:372
+#line 794 "parsecalc.hh" // lalr1.cc:372
 
 
 // //                    "%code provides" blocks.
@@ -795,7 +800,7 @@ namespace yy {
    yy::parser::token_type yylex(yy::parser::semantic_type* yylval, yy::parser::location_type* yylloc)
   YY_DECL;
 
-#line 799 "parsecalc.hh" // lalr1.cc:372
+#line 804 "parsecalc.hh" // lalr1.cc:372
 
 
 #endif // !YY_YY_PARSECALC_HH_INCLUDED

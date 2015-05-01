@@ -49,7 +49,7 @@
 		}
 
 		void affiche(){
-			std::cout<<*((Exp*)first)<<std::endl;
+			std::cout<<generalScope<<std::endl;
 		}
 
 		void setVar(std::string s, Exp* i){
@@ -61,7 +61,7 @@
 					return;
 				}
 			}
-			throw std::string("no variable exists with that name");
+			throw std::string("no variable exists with the name : "+s);
 			
 		}
 
@@ -73,7 +73,7 @@
 					return v[s];
 				}
 			}
-			throw std::string("no variable exists with that name");
+			throw std::string("no variable exists with the name : "+s);
 		}
 
 		Function* getFunction(std::string s){
@@ -130,6 +130,18 @@
 
 		void addExpInGeneralScope(Exp* e){
 			generalScope->addScope(new SousScope(e));
+		}
+
+		void addExpInFunction(Exp* e){
+
+		}
+
+		void addExpInClass(Exp* e){
+
+		}
+
+		void addMethodInClass(){
+			
 		}
 
 	private:

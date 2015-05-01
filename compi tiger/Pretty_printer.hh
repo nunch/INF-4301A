@@ -1,5 +1,6 @@
 #ifndef PRETTYPRINTER_HH
 #define PRETTYPRINTER_HH value
+
 class PrettyPrinter : public Visitor<void>
 	{
 	public:
@@ -44,7 +45,7 @@ class PrettyPrinter : public Visitor<void>
 		}
 
 		void visitStringExp(const StringExp& e) {
-			ostr_ << e.val_;
+			ostr_ << "\""<<e.val_<<"\"";
 		}
 
 		void visitAco(const Aco& e){
@@ -115,6 +116,31 @@ class PrettyPrinter : public Visitor<void>
 			e.vector[e.vector.size()-1]->accept(*this);
 			ostr_<<")";
 		}
+
+		void visitFunction(const FunctionExp& e){
+			ostr_<<"function "<<e.f->name_<<"(";
+			for(unsigned i=0;i<e.f->names_.size();i++){
+				if(i!=e.f->names_.size()-1) ostr_<<e.f->name_[i]<<" : "<<e.f->types_[i]<<", ";
+				else ostr_<<e.f->name_[i]<<" : "<<e.f->types_[i];
+			}
+			ostr_<<") ";
+			if(e.f->returnType_!="null") ostr_<<" : "<<e.f->returnType_<<" ";
+			ostr_<<"= ";
+			e.f->body_->accept(*this);
+
+		}
+
+		void visitExecuteFunction(const ExecuteFunction& e){
+			ostr_<<e.name_<<"(";
+			for(unsigned i=0;i<e.exps_.size();i++){
+				if(i!=e.exps_.size()-1){
+					e.exps_[i]->accept(*this);
+					ostr_<<", ";
+				}else e.exps_[i]->accept(*this);
+			}
+			ostr_<<")";
+		}
+
 
 	private:
 		std::ostream& ostr_;

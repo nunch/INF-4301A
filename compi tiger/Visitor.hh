@@ -83,6 +83,12 @@
 		int visitSequence(const Sequence& exp){
 			return 0;
 		}
+		int visitFunction(const FunctionExp& e){
+			return e.f->body_->accept(*this);
+		}
+		int visitExecuteFunction(const ExecuteFunction& e){
+			return 0;
+		}
 		static Ressources* vars2;
 	};
 
@@ -101,11 +107,12 @@
 			else if(exp.hasElse==1) return exp.els_->accept(*this);
 			return new Null();
 		}
-		Exp* visitVar( Var& exp){
-			return exp.val_;
+		Exp* visitVar( Var& e){
+			vars2->newVar(e.name_,e.val_);
+			return vars2->getVar(e.name_);
 		}
-		Exp* visitShowVar( ShowVar& exp){
-			return exp.val_;
+		Exp* visitShowVar( ShowVar& e){
+			return vars2->getVar(e.name_);
 		}
 		Exp* visitStringExp( StringExp& exp){
 			return &exp;
@@ -137,8 +144,29 @@
 		Exp* visitSequence( Sequence& exp){
 			return new Null();
 		}
+		Exp* visitFunction(FunctionExp& e){
+			return e.f->body_->accept(*this);
+		}
+
+		Exp* visitExecuteFunction(ExecuteFunction& e){
+			try{
+			Function* f = vars2->getFunction(e.name_);
+			f->setExps(e.exps_);
+			vars2->newScope(new LetExp());
+			for(unsigned i=0;i<f->names_.size();i++){
+				Var* v = new Var(f->names_[i],f->exps_[i]);
+				v->accept(*this);
+			}
+			Exp*  ee = f->body_->accept(*this);
+			vars2->deleteScope();
+			return ee;
+			} catch(const std::string& e){
+				throw e;
+			}
+		}
 
 		Calculator calc;
+		static Ressources* vars2;
 	};
 
 	
@@ -200,10 +228,14 @@
 
 
 		void visitAss(const Assignment& e){
+			try{
 			Exp* exp = new Assignment(e.var_,e.val_);
 			std::cout  << " Engine ass : " <<*exp <<  std::endl;
-
-			vars2->setVar(e.var_,e.val_->accept(vis));
+			Exp* ee = e.val_->accept(vis);
+			vars2->setVar(e.var_,ee);
+			} catch(const std::string& e){
+				throw e;
+			}
 		}
 
 		void visitNull(const Null& e){
@@ -221,6 +253,23 @@
 		void visitSequence(const Sequence& exp){
 			std::cout  << " Engine sequence " << std::endl;
 			for(auto i = exp.vector.begin(); i!=exp.vector.end();i++) (*i)->accept(*this);
+		}
+
+		void visitFunction(const FunctionExp& e){
+			vars2->newFunction(e.f->name_,e.f);
+		}
+
+
+		void visitExecuteFunction(const ExecuteFunction& e){
+			Function* f = vars2->getFunction(e.name_);
+			f->setExps(e.exps_);
+			vars2->newScope(new LetExp());
+			for(unsigned i=0;i<f->names_.size();i++){
+				Var* v = new Var(f->names_[i],f->exps_[i]);
+				v->accept(*this);
+			}
+			f->body_->accept(*this);
+			vars2->deleteScope();
 		}
 
 		Calculator calc;

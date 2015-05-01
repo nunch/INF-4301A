@@ -36,6 +36,9 @@
 "import"	return yy::parser::token::TOK_IMPORT;
 "}"			return yy::parser::token::TOK_RACO;
 "affiche"	return yy::parser::token::TOK_AFFICHE;
+"class"		return yy::parser::token::TOK_CLASS;
+"function"	return yy::parser::token::TOK_FUNCTION;
+"method"	return yy::parser::token::TOK_FUNCTION;
 "\""[a-zA-Z][a-zA-Z0-9]+"\"" yylval->build<std::string>(yytext); return yy::parser::token::TOK_STDSTRING;
 [a-zA-Z][a-zA-Z0-9]+	yylval->build<std::string>(yytext); return yy::parser::token::TOK_STRING;
 [a-zA-Z]	yylval->build<std::string>(yytext); return yy::parser::token::TOK_STRING;
