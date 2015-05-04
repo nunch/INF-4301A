@@ -104,9 +104,9 @@
 				if(exp.oper_=='+') {
 					StringExp* e1 = (StringExp*) exp.lhs_->accept(*this);
 					StringExp* e2 = (StringExp*) exp.rhs_->accept(*this);
-					return new StringExp(e1->val_.erase(e1->val_.size()-1)+e2->val_.erase(0,1));
+					return Driver::createStringExp(e1->val_.erase(e1->val_.size()-1)+e2->val_.erase(0,1));
 				}
-				else throw new std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with string");
+				else throw std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with string");
 			}
 			else if(type1=="string" && type2=="int"){
 				if(exp.oper_=='+') {
@@ -114,9 +114,9 @@
 					Num* e2 = (Num*) exp.rhs_->accept(*this);
 					std::string s= std::to_string(e2->val_);
 					std::cout <<"truc "+s+" ou "<<e2->val_<<"\n";
-					return new StringExp(e1->val_.erase(e1->val_.size()-1)+s+"\"");
+					return Driver::createStringExp(e1->val_.erase(e1->val_.size()-1)+s+"\"");
 				}
-				else throw new std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with a string and a number");
+				else throw std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with a string and a number");
 			}
 			else if(type1=="int" && type2=="string"){
 				if(exp.oper_=='+') {
@@ -124,40 +124,40 @@
 					StringExp* e2 = (StringExp*) exp.rhs_->accept(*this);
 					std::string s= std::to_string(e1->val_);
 					std::cout <<"truc "+s+" ou "<<e1->val_<<"\n";
-					return new StringExp("\""+s+e2->val_.erase(0,1));
+					return Driver::createStringExp("\""+s+e2->val_.erase(0,1));
 				}
-				else throw new std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with a string and a number");
+				else throw std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with a string and a number");
 			}
 			else if(type1=="int" && type2=="int"){
 				Num* e1 = (Num*) exp.lhs_->accept(*this);
 				Num* e2 = (Num*) exp.rhs_->accept(*this);
 				switch(exp.oper_){
 					case '+':
-						return new Num(e1->val_+e2->val_);
+						return Driver::createNum(e1->val_+e2->val_);
 						break;
 					case '-':
-						return new Num(e1->val_-e2->val_);
+						return Driver::createNum(e1->val_-e2->val_);
 						break;
 					case '*':
-						return new Num(e1->val_*e2->val_);
+						return Driver::createNum(e1->val_*e2->val_);
 						break;
 					case '/':
-						if(e2->val_==0) throw new std::string("You can divide by 0");
-						return new Num(e1->val_/e2->val_);
+						if(e2->val_==0) throw std::string("You can divide by 0");
+						return Driver::createNum(e1->val_/e2->val_);
 						break;
 					case '&':
-						if(e1->val_ && e2->val_) return new Num(1);
-						return new Num(0);
+						if(e1->val_ && e2->val_) return Driver::createNum(1);
+						return Driver::createNum(0);
 						break;
 					case '|':
-						if(e1->val_ || e2->val_) return new Num(1);
-						return new Num(0);
+						if(e1->val_ || e2->val_) return Driver::createNum(1);
+						return Driver::createNum(0);
 						break;
 					default:
-						throw new std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with numbers");
+						throw std::string("The operation "+std::string(exp.oper_,1)+" is not allowed with numbers");
 				}
 			}
-			throw new std::string("You can only do operation with number or string");
+			throw std::string("You can only do operation with number or string");
 		}
 		Exp* visitNum( Num& exp){
 			return &exp;
@@ -165,7 +165,7 @@
 		Exp* visitIf( IfExp& exp){
 			if(exp.cond_->accept(calc)) return exp.then_->accept(*this);
 			else if(exp.hasElse==1) return exp.els_->accept(*this);
-			return new Null();
+			return Driver::createNull();
 		}
 		Exp* visitVar( Var& e){
 			vars2->newVar(e.name_,e.val_);
@@ -178,22 +178,22 @@
 			return &exp;
 		}
 		Exp* visitFor( ForExp& exp){
-			return new Null();
+			return Driver::createNull();
 		}
 		Exp* visitWhile( WhileExp& exp){
-			return new Null();
+			return Driver::createNull();
 		}
 		Exp* visitAss( Assignment& exp){
-			return new Null();
+			return Driver::createNull();
 		}
 		Exp* visitNull( Null& exp){
-			return new Null();
+			return Driver::createNull();
 		}
 		Exp* visitLet( LetExp& exp){
-			return new Null();
+			return Driver::createNull();
 		}
 		Exp* visitSequence( Sequence& exp){
-			return new Null();
+			return Driver::createNull();
 		}
 		Exp* visitFunction(FunctionExp& e){
 			return e.f->body_->accept(*this);
@@ -203,9 +203,9 @@
 			try{
 			Function* f = vars2->getFunction(e.name_);
 			f->setExps(e.exps_);
-			vars2->newScope(new LetExp());
+			vars2->newScope((LetExp*) Driver::createLetExp());
 			for(unsigned i=0;i<f->names_.size();i++){
-				Var* v = new Var(f->names_[i],f->exps_[i]);
+				Var* v = (Var*) Driver::createVar(f->names_[i],f->exps_[i]);
 				v->accept(*this);
 			}
 			Exp*  ee = f->body_->accept(*this);
@@ -217,7 +217,7 @@
 		}
 
 		Exp* visitClass(ClassExp& e){
-			return new Null();
+			return Driver::createNull();
 		}
 
 		Exp* visitUseClass(UseClass& e){
@@ -240,9 +240,9 @@
 			try{
 				Function* f = ((UseClass*) vars2->getVar(e.name_))->methods_[e.name_];
 				f->setExps(e.exps_);
-				vars2->newScope(new LetExp());
+				vars2->newScope((LetExp*) Driver::createLetExp());
 				for(unsigned i=0;i<f->names_.size();i++){
-					Var* v = new Var(f->names_[i],f->exps_[i]);
+					Var* v = (Var*) Driver::createVar(f->names_[i],f->exps_[i]);
 					v->accept(*this);
 				}
 				Exp*  ee = f->body_->accept(*this);
@@ -291,7 +291,7 @@
 		
 		void visitFor(const ForExp& e){
 			for(int i=(*e.var_)();i<(*e.to_)()+1;i++){
-				vars2->setVar(((Assignment*)e.var_)->var_, new Num(i));
+				vars2->setVar(((Assignment*)e.var_)->var_, Driver::createNum(i));
 				e.do_->accept(*this);
 			}
 		}
@@ -337,9 +337,9 @@
 			std::vector<Exp*> v;
 			for(unsigned i=0;i<e.exps_.size();i++) v.push_back(e.exps_[i]->accept(vis));
 			f->setExps(v);
-			vars2->newScope(new LetExp());
+			vars2->newScope((LetExp*) Driver::createLetExp());
 			for(unsigned i=0;i<f->names_.size();i++){
-				Var* v = new Var(f->names_[i],f->exps_[i]);
+				Var* v =(Var*) Driver::createVar(f->names_[i],f->exps_[i]);
 				v->accept(*this);
 			}
 			f->body_->accept(*this);

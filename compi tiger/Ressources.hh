@@ -129,7 +129,6 @@
 		}
 
 		void addExpInGeneralScope(Exp* e){
-			std::cout<<*e<<std::endl;
 			generalScope->addScope(new SousScope(e));
 		}
 
