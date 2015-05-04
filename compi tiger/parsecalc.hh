@@ -269,21 +269,27 @@ namespace yy {
     {
       // line
       // exp
+      // operation
       char dummy1[sizeof(Exp*)];
 
       // exps
       char dummy2[sizeof(Sequence*)];
 
+      // truc
+      char dummy3[sizeof(Sequence2*)];
+
       // FILENAME
-      char dummy3[sizeof(char*)];
+      char dummy4[sizeof(char*)];
 
       // INT
-      char dummy4[sizeof(int)];
+      char dummy5[sizeof(int)];
 
       // STRING
       // STDSTRING
-      // "function"
-      char dummy5[sizeof(std::string)];
+      char dummy6[sizeof(std::string)];
+
+      // truc2
+      char dummy7[sizeof(std::vector<Exp*> *)];
 };
 
     /// Symbol semantic values.
@@ -311,34 +317,38 @@ namespace yy {
         TOK_STRING = 259,
         TOK_STDSTRING = 260,
         TOK_FILENAME = 261,
-        TOK_FUNCTION = 262,
-        TOK_LPAREN = 263,
-        TOK_MINUS = 264,
-        TOK_PLUS = 265,
-        TOK_RPAREN = 266,
-        TOK_SLASH = 267,
-        TOK_STAR = 268,
-        TOK_PV = 269,
-        TOK_EOL = 270,
-        TOK_IF = 271,
-        TOK_ELSE = 272,
-        TOK_FOR = 273,
-        TOK_FROM = 274,
-        TOK_TO = 275,
-        TOK_DO = 276,
-        TOK_WHILE = 277,
-        TOK_LACO = 278,
-        TOK_RACO = 279,
-        TOK_THEN = 280,
-        TOK_VAR = 281,
-        TOK_EQUALS = 282,
-        TOK_AFFICHE = 283,
-        TOK_LET = 284,
-        TOK_IN = 285,
-        TOK_END = 286,
-        TOK_VIR = 287,
-        TOK_IMPORT = 288,
-        TOK_CLASS = 289
+        TOK_LPAREN = 262,
+        TOK_MINUS = 263,
+        TOK_PLUS = 264,
+        TOK_RPAREN = 265,
+        TOK_SLASH = 266,
+        TOK_STAR = 267,
+        TOK_PV = 268,
+        TOK_EOL = 269,
+        TOK_IF = 270,
+        TOK_ELSE = 271,
+        TOK_FOR = 272,
+        TOK_FROM = 273,
+        TOK_TO = 274,
+        TOK_DO = 275,
+        TOK_WHILE = 276,
+        TOK_LACO = 277,
+        TOK_RACO = 278,
+        TOK_THEN = 279,
+        TOK_VAR = 280,
+        TOK_EQUALS = 281,
+        TOK_AFFICHE = 282,
+        TOK_LET = 283,
+        TOK_IN = 284,
+        TOK_END = 285,
+        TOK_VIR = 286,
+        TOK_IMPORT = 287,
+        TOK_CLASS = 288,
+        TOK_FUNCTION = 289,
+        TOK_METHOD = 290,
+        TOK_DP = 291,
+        TOK_AND = 292,
+        TOK_OR = 293
       };
     };
 
@@ -377,11 +387,15 @@ namespace yy {
 
   basic_symbol (typename Base::kind_type t, const Sequence* v, const location_type& l);
 
+  basic_symbol (typename Base::kind_type t, const Sequence2* v, const location_type& l);
+
   basic_symbol (typename Base::kind_type t, const char* v, const location_type& l);
 
   basic_symbol (typename Base::kind_type t, const int v, const location_type& l);
 
   basic_symbol (typename Base::kind_type t, const std::string v, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const std::vector<Exp*> * v, const location_type& l);
 
 
       /// Constructor for symbols with semantic value.
@@ -460,10 +474,6 @@ namespace yy {
     static inline
     symbol_type
     make_FILENAME (const char*& v, const location_type& l);
-
-    static inline
-    symbol_type
-    make_FUNCTION (const std::string& v, const location_type& l);
 
     static inline
     symbol_type
@@ -573,6 +583,26 @@ namespace yy {
     symbol_type
     make_CLASS (const location_type& l);
 
+    static inline
+    symbol_type
+    make_FUNCTION (const location_type& l);
+
+    static inline
+    symbol_type
+    make_METHOD (const location_type& l);
+
+    static inline
+    symbol_type
+    make_DP (const location_type& l);
+
+    static inline
+    symbol_type
+    make_AND (const location_type& l);
+
+    static inline
+    symbol_type
+    make_OR (const location_type& l);
+
 
     /// Build a parser object.
     parser (unsigned* nerrs_yyarg);
@@ -679,7 +709,7 @@ namespace yy {
     static const char* const yytname_[];
 #if YYDEBUG
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-  static const unsigned char yyrline_[];
+  static const unsigned short int yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r);
     /// Print the state stack on the debug stream.
@@ -773,13 +803,13 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 217,     ///< Last index in yytable_.
-      yynnts_ = 5,  ///< Number of nonterminal symbols.
+      yylast_ = 269,     ///< Last index in yytable_.
+      yynnts_ = 8,  ///< Number of nonterminal symbols.
       yyempty_ = -2,
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 35  ///< Number of tokens.
+      yyntokens_ = 39  ///< Number of tokens.
     };
 
 
@@ -790,7 +820,7 @@ namespace yy {
 
 
 } // yy
-#line 794 "parsecalc.hh" // lalr1.cc:372
+#line 824 "parsecalc.hh" // lalr1.cc:372
 
 
 // //                    "%code provides" blocks.
@@ -800,7 +830,7 @@ namespace yy {
    yy::parser::token_type yylex(yy::parser::semantic_type* yylval, yy::parser::location_type* yylloc)
   YY_DECL;
 
-#line 804 "parsecalc.hh" // lalr1.cc:372
+#line 834 "parsecalc.hh" // lalr1.cc:372
 
 
 #endif // !YY_YY_PARSECALC_HH_INCLUDED

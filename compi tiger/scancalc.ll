@@ -32,6 +32,9 @@
 "in"		return yy::parser::token::TOK_IN;
 "end"		return yy::parser::token::TOK_END;
 ","			return yy::parser::token::TOK_VIR;
+":"			return yy::parser::token::TOK_DP;
+"&"			return yy::parser::token::TOK_AND;
+"|"			return yy::parser::token::TOK_OR;
 "{"			return yy::parser::token::TOK_LACO;
 "import"	return yy::parser::token::TOK_IMPORT;
 "}"			return yy::parser::token::TOK_RACO;
@@ -39,7 +42,7 @@
 "class"		return yy::parser::token::TOK_CLASS;
 "function"	return yy::parser::token::TOK_FUNCTION;
 "method"	return yy::parser::token::TOK_FUNCTION;
-"\""[a-zA-Z][a-zA-Z0-9]+"\"" yylval->build<std::string>(yytext); return yy::parser::token::TOK_STDSTRING;
+"\""[a-zA-Z0-9]+"\"" yylval->build<std::string>(yytext); return yy::parser::token::TOK_STDSTRING;
 [a-zA-Z][a-zA-Z0-9]+	yylval->build<std::string>(yytext); return yy::parser::token::TOK_STRING;
 [a-zA-Z]	yylval->build<std::string>(yytext); return yy::parser::token::TOK_STRING;
 [0-9]+    	yylval->build<int>(strtol(yytext, 0,10));return yy::parser::token::TOK_INT;

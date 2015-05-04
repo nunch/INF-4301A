@@ -1,5 +1,4 @@
 #include "Exp.hh"
-//#include "Scope.hh"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -7,14 +6,21 @@
 #include <typeinfo>
 #include <stdio.h>
  #include <unistd.h>
+#include <cstdlib>
 
-Ressources vars;
+/*Ressources vars;
 Ressources* Engine::vars2 = &vars;
 Ressources* Calculator::vars2 = &vars;
 Ressources* VisExp::vars2 = &vars;
 Calculator calc;
  int LetExp::totalNum = -1;
-
+*/
+int a(){
+	throw std::string("ab");
+}
+void b(){
+	if(a()) 1;
+}
 
 int main(int argc, char const *argv[])
 {
@@ -133,7 +139,7 @@ int main(int argc, char const *argv[])
 		scanf("%d",&a);
 		std::cout<<"papa " <<a<<std::endl;
 	}*/
-	/*std::cout<<stdin<<std::endl;
+	std::cout<<stdin<<std::endl;
 	int a;
 	int p[2];
 	pipe(p);
@@ -145,21 +151,25 @@ int main(int argc, char const *argv[])
 	std::cout<<a<<std::endl;
 	//dup2(stdin_copy, 0);
 	scanf("%d",&a);
-	std::cout<<a<<std::endl;*/
+	std::cout<<a<<std::endl;
 	//std::stri
-	Engine engine;
-	std::string a("truc"),b("gjbf");
-	Function* f = new Function(a,b,{"a1","a2","a3"}, {"int","string","int"},new ShowVar("a1",new Num(5)));
+	/*Engine engine;
+	std::string a("truc"),b("int");
+	Function* f = new Function(a,b,{"a1","vh","a3"}, {"int","string","int"},new ShowVar("a1"));
 	Exp* e = new FunctionExp(f);
+	std::cout<<*e<<std::endl;
 	e->accept(engine);
-	Exp* e1 = new ExecuteFunction(a,{new Num(1), new StringExp("2"),new Num(2)});
-	Exp* e2 = new Var("ab",new Num(0));
+	Exp* e1 = new ExecuteFunction(a,{new Num(9), new StringExp("2"),new Num(2)});
+	Exp* e2 = new Var("ab",e1);
 	e2->accept(engine);
-	std::cout<<*vars.getVar("ab")<<std::endl;
 	vars.setVar("ab",new Num(5));
-	Exp* e3 = new Assignment("ab",e1);
-	try{e3->accept(engine);} catch(const std::string& e){std::cout << e<<std::endl;}
-	std::cout<<*vars.getVar("ab")<<std::endl;
+	//Exp* e3 = new Assignment("ab",e1);
+	//try{e3->accept(engine);} catch(const std::string& e){std::cout << e<<std::endl;}
+	
+	std::cout<<*e<<"\n"<<*e2<<"\n";
+	std::cout<<*vars.getVar("ab")<<std::endl;*/
+	std::string s = "truc"+5;
+
 	
 	return 0;
 }

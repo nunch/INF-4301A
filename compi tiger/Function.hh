@@ -6,13 +6,16 @@
 	class Function
 	{
 	public:
-		Function(std::string name,  std::string& returnType, Exp* body):name_(name),returnType_(returnType),body_(body){};
-		Function(std::string name,  std::string& returnType, std::vector<std::string> n, std::vector<std::string> t,Exp* body):
+		Function(std::string name,  std::string returnType, Exp* body):name_(name),returnType_(returnType),body_(body){};
+		Function(std::string name,  std::string returnType, std::vector<std::string> n, std::vector<std::string> t,Exp* body):
 		name_(name),returnType_(returnType),names_(n),types_(t),body_(body){};
 		~Function(){};
 
 		void setExps(std::vector<Exp*> e){
-			if(e.size()!=names_.size()) throw std::string("function "+name_+" requires "+std::string(""+names_.size())+" parameters but you gave it "+std::string(""+e.size())+" parameters");
+			if(e.size()!=names_.size()) throw std::string("function "+name_+" requires "+std::to_string(names_.size())+" parameters but you gave it "+std::to_string(e.size())+" parameters");
+			for(unsigned i=0;i<e.size();i++){
+				if(e[i]->type!=types_[i]) throw std::string("In function "+name_+", parameter n°"+std::to_string(i+1)+" has not the required type ("+types_[i]+")");
+			}
 			exps_ = e;
 		}
 

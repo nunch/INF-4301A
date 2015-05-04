@@ -48,10 +48,6 @@ class PrettyPrinter : public Visitor<void>
 			ostr_ << "\""<<e.val_<<"\"";
 		}
 
-		void visitAco(const Aco& e){
-			ostr_<<e.aco_;
-		}
-
 		void visitFor(const ForExp& e){
 			ostr_<<"for ";
 			e.var_->accept(*this);
@@ -100,13 +96,6 @@ class PrettyPrinter : public Visitor<void>
 			ostr_<<"end";
 		}
 
-		void visitIn(const InExp& exp){
-			ostr_<<"in";
-		}
-		void visitEnd(const EndExp& exp){
-			ostr_<<"end";
-		}
-
 		void visitSequence(const Sequence& e){
 			ostr_<<"(";
 			for(unsigned i=0;i<e.vector.size()-1;i++){
@@ -120,14 +109,35 @@ class PrettyPrinter : public Visitor<void>
 		void visitFunction(const FunctionExp& e){
 			ostr_<<"function "<<e.f->name_<<"(";
 			for(unsigned i=0;i<e.f->names_.size();i++){
-				if(i!=e.f->names_.size()-1) ostr_<<e.f->name_[i]<<" : "<<e.f->types_[i]<<", ";
-				else ostr_<<e.f->name_[i]<<" : "<<e.f->types_[i];
+				if(i!=e.f->names_.size()-1) ostr_<<e.f->names_[i]<<" : "<<e.f->types_[i]<<", ";
+				else ostr_<<e.f->names_[i]<<" : "<<e.f->types_[i];
 			}
 			ostr_<<") ";
 			if(e.f->returnType_!="null") ostr_<<" : "<<e.f->returnType_<<" ";
 			ostr_<<"= ";
 			e.f->body_->accept(*this);
 
+		}
+
+		void visitClass(const ClassExp& e){
+			ostr_<<"class "<<e.c->name_;
+			if(e.c->super_!=NULL) ostr_<<" extends "<<e.c->super_->name_;
+			ostr_<<"\n{\n";
+			for(auto it = e.c->attributes_.begin();it!=e.c->attributes_.end();it++){
+				ostr_<<"\t"<<it->first<<" := "<<it->second;
+			}
+			for(auto it = e.c->methods_.begin();it!=e.c->methods_.end();it++){
+				ostr_<<"\tmethods "<<it->first<<'(';
+				for(unsigned i = 0;i<it->second->names_.size();i++){
+					if(i!=it->second->names_.size()-1) ostr_<<it->second->names_[i]<< " : "<<it->second->types_[i]<<", ";
+					else ostr_<<it->second->names_[i]<< " : "<<it->second->types_[i];
+				}
+				ostr_<<") ";
+				if(it->second->returnType_!="null") ostr_<<" : "<<it->second->returnType_<<" ";
+				ostr_<<"= ";
+				it->second->body_->accept(*this);
+			}
+			ostr_<<"\n}";
 		}
 
 		void visitExecuteFunction(const ExecuteFunction& e){
@@ -137,6 +147,23 @@ class PrettyPrinter : public Visitor<void>
 					e.exps_[i]->accept(*this);
 					ostr_<<", ";
 				}else e.exps_[i]->accept(*this);
+			}
+			ostr_<<")";
+		}
+
+		void visitUseClass(const UseClass& exp){
+			ostr_<<"new "<<exp.className_; 
+		}
+		void visitUseAttribute(const UseAttribute& exp){
+			ostr_<<exp.name_<<"."<<exp.p_;
+		}
+		void visitUseMethod(const UseMethod& exp){
+			ostr_<<exp.name_<<"."<<exp.method_<<"(";
+			for(unsigned i=0;i<exp.exps_.size();i++){
+				if(i!=exp.exps_.size()-1){
+					exp.exps_[i]->accept(*this);
+					ostr_<<", ";
+				}else exp.exps_[i]->accept(*this);
 			}
 			ostr_<<")";
 		}

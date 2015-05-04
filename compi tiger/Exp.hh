@@ -11,7 +11,6 @@
 	class Num;
 	class IfExp;
 	class ForExp;
-	class Aco;
 	class Var;
 	class WhileExp;
 	class Assignment;
@@ -19,13 +18,15 @@
 	class StringExp;
 	class ShowVar;
 	class LetExp;
-	class InExp;
-	class EndExp;
 	class FunctionExp;
 	class GroupeScope;
 	class Sequence;
 	class Function;
 	class ExecuteFunction;
+	class ClassExp;
+	class UseClass;
+	class UseAttribute;
+	class UseMethod;
 
 	
 	template <typename T>
@@ -38,17 +39,18 @@
 		virtual T visitVar(const Var& exp) = 0;
 		virtual T visitShowVar(const ShowVar& exp) = 0;
 		virtual T visitStringExp(const StringExp& exp) = 0;
-		virtual T visitAco(const Aco& exp) = 0;
 		virtual T visitFor(const ForExp& exp) = 0;
 		virtual T visitWhile(const WhileExp& exp) = 0;
 		virtual T visitAss(const Assignment& exp) = 0;
 		virtual T visitNull(const Null& exp) = 0;
 		virtual T visitLet(const LetExp& exp) = 0;
-		virtual T visitIn(const InExp& exp) = 0;
-		virtual T visitEnd(const EndExp& exp) = 0;
 		virtual T visitSequence(const Sequence& exp) = 0;
 		virtual T visitFunction(const FunctionExp& exp) = 0;
 		virtual T visitExecuteFunction(const ExecuteFunction& exp) = 0;
+		virtual T visitClass(const ClassExp& exp) = 0;
+		virtual T visitUseClass(const UseClass& exp) = 0;
+		virtual T visitUseAttribute(const UseAttribute& exp) = 0;
+		virtual T visitUseMethod(const UseMethod& exp) = 0;
 
 	};
 
@@ -62,17 +64,18 @@
 		virtual T visitVar( Var& exp) = 0;
 		virtual T visitShowVar( ShowVar& exp) = 0;
 		virtual T visitStringExp( StringExp& exp) = 0;
-		virtual T visitAco( Aco& exp) = 0;
 		virtual T visitFor( ForExp& exp) = 0;
 		virtual T visitWhile( WhileExp& exp) = 0;
 		virtual T visitAss( Assignment& exp) = 0;
 		virtual T visitNull( Null& exp) = 0;
 		virtual T visitLet( LetExp& exp) = 0;
-		virtual T visitIn( InExp& exp) = 0;
-		virtual T visitEnd( EndExp& exp) = 0;
 		virtual T visitSequence( Sequence& exp) = 0;
 		virtual T visitFunction(FunctionExp& exp) = 0;
 		virtual T visitExecuteFunction(ExecuteFunction& exp) = 0;
+		virtual T visitClass(ClassExp& exp) = 0;
+		virtual T visitUseClass( UseClass& exp) = 0;
+		virtual T visitUseAttribute( UseAttribute& exp) = 0;
+		virtual T visitUseMethod( UseMethod& exp) = 0;
 
 	};
 
@@ -144,27 +147,7 @@
 
 
 
-	class Aco : public Exp
-	{
-	public:
-		Aco(char aco)
-		: Exp("Aco"),aco_(aco)
-		{};
-		Aco(Aco& aco)
-		: Exp("Aco"),aco_(aco.aco_)
-		{};
-		friend std::ostream& operator<<(std::ostream& o, const Aco& tree);
-		int accept(Visitor<int>& v) const {
-			return v.visitAco(*this);
-		}
-		Exp* accept(Visitor3<Exp*>& v) {
-			return v.visitAco(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitAco(*this);
-		}
-		char aco_;
-	};
+	
 
 	class Var : public Exp
 	{
@@ -193,11 +176,11 @@
 	class ShowVar : public Exp
 	{
 	public:
-		ShowVar(std::string s,Exp* val)
-		: Exp(val->type),val_(val),name_(s)
+		ShowVar(std::string s)
+		: Exp("none"),name_(s)
 		{};
 		ShowVar(ShowVar& v)
-		: Exp(v.type),val_(v.val_),name_(v.name_)
+		: Exp(v.type),name_(v.name_)
 		{};
 		friend std::ostream& operator<<(std::ostream& o, const ShowVar& tree);
 		int accept(Visitor<int>& v) const {
@@ -210,7 +193,6 @@
 		Exp* accept(Visitor3<Exp*>& v) {
 			return v.visitShowVar(*this);
 		}
-		Exp* val_;
 		std::string name_;
 	};
 
@@ -241,44 +223,6 @@
 		std::vector<Exp*> *body_;
 		static int totalNum;
 		int num;
-	};
-
-
-
-	class InExp : public Exp
-	{
-	public:
-		InExp():Exp("In"){};
-		~InExp(){};
-		
-		friend std::ostream& operator<<(std::ostream& o, const InExp& tree);
-		int accept(Visitor<int>& v) const {
-			return v.visitIn(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitIn(*this);
-		}
-		Exp* accept(Visitor3<Exp*>& v) {
-			return v.visitIn(*this);
-		}
-	};
-
-	class EndExp : public Exp
-	{
-	public:
-		EndExp():Exp("End"){};
-		~EndExp(){};
-		
-		friend std::ostream& operator<<(std::ostream& o, const EndExp& tree);
-		int accept(Visitor<int>& v) const {
-			return v.visitEnd(*this);
-		}
-		void accept(Visitor<void>& v) const {
-			v.visitEnd(*this);
-		}
-		Exp* accept(Visitor3<Exp*>& v) {
-			return v.visitEnd(*this);
-		}
 	};
 
 
@@ -410,7 +354,16 @@
 		}
 	};
 
-	
+	class Sequence2 : public Exp{
+	public:
+		Sequence2():Exp(""){};
+		void push(std::string n, std::string t){
+			names.push_back(n);
+			types.push_back(t);
+		}
+		std::vector<std::string> names;
+		std::vector<std::string> types;
+	};
 
 	class Sequence : public Exp
 	{
@@ -434,55 +387,12 @@
 	};
 
 	#include "Function.hh"
-	
 	#include "Class.hh"
 	#include "Pretty_printer.hh"
 
 	
-
-
-	inline Exp* createNum(int i){
-		return new Num(i);
-	}
-
-	inline Exp* createBin(char c, Exp* e1, Exp*e2){
-		return new Bin(c,e1,e2);
-	}
-
-	inline Exp* createIf(Exp* e1, Exp* e2){
-		return new IfExp(e1,e2);
-	}
-
-	inline Exp* createIf(Exp* e1, Exp* e2, Exp* e3){
-		return new IfExp(e1,e2,e3);
-	}
-
-	inline Exp* createVar(std::string s,Exp* i){
-		return new Var(s,i);
-	}
-
-	inline Exp* createAco(char c){
-		return new Aco(c);
-	}
-
-	inline Exp* createFor(Exp* var, Exp* from, Exp* to, Exp* doo){
-		return new ForExp(var,from,to,doo);
-	}
-
-	inline Exp* createWhile(Exp* cond, Exp* doo){
-		return new WhileExp(cond,doo);
-	}
-
-	template <typename T>
-	inline std::vector<Exp*>& operator+(std::vector<Exp*>& v, T r){
-		v.push_back((Exp*) r);
-		return v;
-	}
-
-	inline std::vector<Exp*>& operator-(std::vector<Exp*>& v, int n){
-		for(int i=0;i<n;i++) v.pop_back();
-		return v;
-	}
+	#include "Driver.hh"
+	
 	
 	#include "Scope.hh"
 	#include "Ressources.hh"

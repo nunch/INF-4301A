@@ -65,19 +65,14 @@
 		~Printer(){};
 
 		void visitSous(const SousScope& s){
-			for(int j = 0;j<s.num;j++) ostr_<<'\t';
 			ostr_<<*s.e_;
-			ostr_<<'\n';
 		}
 
 		void visitGroupe(const GroupeScope& s){
-			for(int j = 1;j<s.num;j++) ostr_<<'\t';
-			ostr_<<"{\n";
 			for(auto it = s.v.begin();it!=s.v.end();it++){
 				(*it)->accept(*this);
+				ostr_<<"\n";
 			}
-			for(int j = 1;j<s.num;j++) ostr_<<'\t';
-			ostr_<<"}\n";
 		}
 		
 		std::ostream& ostr_;

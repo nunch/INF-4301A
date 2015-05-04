@@ -32,6 +32,7 @@
   Ressources vars;
   Ressources* Engine::vars2 = &vars;
   Ressources* Calculator::vars2 = &vars;
+  Ressources* VisExp::vars2 = &vars;
   Engine engine;
 
   int LetExp::totalNum = -1;
@@ -45,6 +46,9 @@
   FILE* in = NULL;
   int isInside = 0;
   FILE* truc = stdin;
+  std::vector<Function*> Driver::f;
+  std::vector<Exp*> Driver::v;
+  Driver driver;
 }
 
 
@@ -56,8 +60,10 @@
 %token <std::string> STRING
 %token <std::string> STDSTRING
 %token <char*> FILENAME
-%type <Exp*> exp line
+%type <Exp*> exp line operation
 %type <Sequence*> exps
+%type <Sequence2*> truc
+%type <std::vector<Exp*> *> truc2
 
 %printer { yyo << $$; } <Exp*>
 
@@ -92,16 +98,21 @@
   CLASS "class"
   FUNCTION "function"
   METHOD "method"
+  DP ":"
+  AND "&"
+  OR "|"
 %right STRING 
 %right "(" ")"
-%right VAR VIR 
+%right VAR 
 %right IF THEN ELSE
 %right WHILE FOR TO DO
 %right STDSTRING 
 %nonassoc EQUALS
+%right "|"
+%right "&"
 %left "+" "-"
 %left "*" "/"
-%right PV
+%right PV VIR
 
 %%
 input:
@@ -113,98 +124,59 @@ input:
                 ss<<*$2;
                 s = ss.str();
                 if(s!="null"){
-                  std::cout<<*$2<<std::endl;
-                  //vars.newExp($2);
                   if(isNewScope){
                     if(isInside>0){
                       if(isInBody) vars.addExpInBody($2);
                       if(isInHead) vars.addExpInHead($2);
-                    }else{
-                      vars.addExpInGeneralScope($2);
                     }
                   }
+                  if(isInside==0) vars.addExpInGeneralScope($2);
                   if(isNewScope) isInside++;
                   isNewScope=false;
-                  $2->accept(engine);
+                  try{
+                    $2->accept(engine);
+                  }catch(const std::string& m){
+                    error(@2, m); yyerrok;
+                  }
                 }
               }
 ;
 
 line:
-  EOL       { $$ = $$=new Null(); }
+  EOL       { $$ = $$=Driver::createNull(); }
 | exp EOL   { $$ = $1; }
-| error EOL { $$ = $$=new Null(); yyerrok; }
+| error EOL { $$ = $$=Driver::createNull(); yyerrok; }
 ;
 
 
 
 exp:
-  exp "+" exp  { $$ = createBin('+',$1, $3); }
-| exp "-" exp  { $$ = createBin('-',$1, $3); }
-| exp "*" exp  { $$ = createBin('*',$1, $3); }
-| exp "/" exp  {  
-                  Engine calc;
-                  double i=(*$3)();
-                  if(i){
-                    $$ = createBin('/',$1, $3); 
-                  }else{
-                    error(@3, "division by 0");
-                    YYERROR;
-                  }
-}
+operation { $$ = $1; }
 | "(" exps ")" { $$ = $2; }
-| "(" error ")"{ $$ = createNum(777); }
-| INT          { $$ = createNum($1); }
-| IF exp THEN exp ELSE exp { $$ = createIf($2,$4,$6);}
-| IF exp THEN exp{ $$ = createIf($2,$4);}
-| FOR exp TO exp DO exp { $$ = createFor($2,$4,$4,$6);vars.newVar(((Var*) $2)->name_, $2);}
-| WHILE exp DO exp{ $$ = createWhile($2,$4);}
-| LACO { $$=new Null(); }
-| RACO { $$=new Null(); }
-| IMPORT FILENAME {
-  $$ = new Null();
-  freopen($2,"r",stdin);
-}
-| VAR STRING EQUALS exp {
- try{
-    //vars.newVar($2,$4); 
-    $$=createVar($2,$4);
-  }catch(const std::string& msg){
-    error(@2,msg);YYERROR;
-  }
-}
-| STRING EQUALS exp {
-  bool res = vars.hasVar($1);
-  try{
-    if(res){
-      //vars.setVar($1,$3);
-      $$ = new Assignment($1,$3);
-    }else{
-      error(@1, "is not an existed variable"); YYERROR;
-    }
-  }catch(const std::string & Msg){
-    error(@1, "truc de merde"); YYERROR;
-  }
-}
-| STRING { 
-            try{
-              $$ = new ShowVar($1,vars.getVar($1));
-            } catch(const std::string & Msg){
-              error(@1, "not a statement"); YYERROR;
-            }
-}
-| STDSTRING { $$ = new StringExp($1);}
+| "(" error ")"{ $$ = Driver::createNum(777); }
+| INT          { $$ = Driver::createNum($1); }
+| IF exp THEN exp ELSE exp { $$ = Driver::createIfExp($2,$4,$6);}
+| IF exp THEN exp{ $$ = Driver::createIfExp($2,$4);}
+| FOR exp TO exp DO exp { $$ = Driver::createForExp($2,$4,$4,$6);}
+| WHILE exp DO exp{ $$ = Driver::createWhileExp($2,$4);}
+| VAR STRING EQUALS exp { $$=Driver::createVar($2,$4); }
+| STRING EQUALS exp { $$ = Driver::createAssignment($1,$3); }
+| STRING { $$ = Driver::createShowVar($1); }
+| STDSTRING { $$ = Driver::createStringExp($1);}
 | AFFICHE {
   vars.affiche();
-  $$=new Null();
+  $$=Driver::createNull();
 }
 | AFFICHE STRING{
-  Calculator calc;
-  std::cout<<vars.getVar($2)->accept(calc)<<std::endl;;
-  $$=new Null();
+  VisExp vis;
+  Exp* e = vars.getVar($2)->accept(vis);
+  if(e->type=="int") std::cout<<((Num*) e)->val_<<std::endl;
+  if(e->type=="string") std::cout<<((StringExp*) e)->val_<<std::endl;
+
+  $$=Driver::createNull();
 }
 | LET { if(isInBody){
-          $$ = new LetExp();
+          $$ = Driver::createLetExp();
           vars.newScope((LetExp*)$$);
           isInBody=false;
           isInHead=true;
@@ -217,7 +189,7 @@ exp:
   try{
           if(isInBody){
             vars.deleteScope();
-            $$ = new Null();
+            $$ = Driver::createNull();
           }else{
             error(@1, "end can only be used in a body"); YYERROR;
           }
@@ -227,39 +199,80 @@ exp:
 }
 | IN {
   if(isInHead){
-    $$ = new Null();
+    $$ = Driver::createNull();
     isInBody=true;
     isInHead=false;
   }else{
     error(@1, "in can only be used in a head"); YYERROR;
   }
 }
-| CLASS STRING LACO exps RACO EQUALS{
-  $$=new Null();
+| CLASS STRING{
+  $$=Driver::createNull();
 }
-| CLASS STRING LACO RACO EQUALS{
-  $$=new Null();
+| FUNCTION STRING "(" truc ")" EQUALS exp {
+  std::string* s = new std::string($2);
+  Function* f = Driver::createFunction(*s,"null",$4->names,$4->types,$7);
+  Exp * e = Driver::createFunctionExp(f);
+  $$ = Driver::createFunctionExp(f);
 }
-| FUNCTION STRING LACO exps RACO EQUALS exp{
-  $$=new Null();
+| FUNCTION STRING "(" ")" EQUALS exp{
+  $$ = Driver::createFunctionExp(Driver::createFunction($2,"null",{},{},$6));
 }
-| FUNCTION STRING LACO RACO EQUALS exp{
-  $$=new Null();
+| METHOD STRING "(" exps ")" EQUALS exp{
+  $$=Driver::createNull();
 }
-| METHOD STRING LACO exps RACO EQUALS exp{
-  $$=new Null();
+| METHOD STRING "(" ")" EQUALS exp{
+  $$=Driver::createNull();
 }
-| METHOD STRING LACO RACO EQUALS exp{
-  $$=new Null();
+| STRING "(" truc2 ")"{
+  $$ = Driver::createExecuteFunction($1,*$3);
 }
+| STRING "(" ")"{
+  $$ = Driver::createExecuteFunction($1,{});
+
+}
+
 ;
+
+operation:
+  exp "+" exp  { $$ = Driver::createBin('+',$1, $3); }
+| exp "-" exp  { $$ = Driver::createBin('-',$1, $3); }
+| exp "*" exp  { $$ = Driver::createBin('*',$1, $3); }
+| exp "/" exp  { $$ = Driver::createBin('/',$1, $3); }
+| exp "&" exp  { $$ = Driver::createBin('&',$1, $3); }
+| exp "|" exp  { $$ = Driver::createBin('|',$1, $3); }
+;
+
 
 
 
 exps:
-exp {$$ = new Sequence($1);}
-| exps PV exp {$1->vector+$3; $$ = $1;}
+exp {$$ = (Sequence*) Driver::createSequence($1);}
+| exps PV exp {$1->vector.push_back($3); $$ = $1;}
 ;
+
+truc:
+STRING DP STRING {
+  $$ = (Sequence2*) Driver::createSequence2();
+  $$->push($1,$3);
+}
+| truc VIR STRING DP STRING{
+  $1->push($3,$5);
+  $$=$1;
+}
+;
+
+truc2:
+exp{
+  $$ = new std::vector<Exp*>(); 
+  $$->push_back($1);
+}
+| truc2 VIR exp{
+  $1->push_back($3);
+  $$=$1;
+}
+;
+
 
 
 
@@ -276,8 +289,6 @@ void yy::parser::error(const location_type& loc, const std::string& msg)
 int main()
 {
   //yydebug = !!getenv("YYDEBUG");
-  std::cout << Engine::vars2 << std::endl;
-  std::cout << &vars << std::endl;
   unsigned nerrs =0;
   /*
   FILE* f = fopen("t.t","r");

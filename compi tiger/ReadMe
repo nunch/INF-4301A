@@ -1,0 +1,32 @@
+Ce qui a été fait : 
+pretty printer
+calculateur
+boucle while
+boucle for (variable doit exister avant, ne déclare pas la variable)
+if then, if then else
+scopes Let sur plusieurs lignes, example:
+let
+	var a = 5
+in
+	a=6
+	let
+		var b = 0
+	in
+		b = a
+	end
+end
+fonction
+Operateur:
+	- int op int = int
+	- string + int = string
+	- int + string = string
+	- string + string = string
+Driver regroupant les pointeurs (Exp et Function)
+
+Ce qui a été pensé mais pas réalisé : 
+Import : nous avons voulu utilisé freopen("myfile.txt","r",stdin); cependant, nous n'arrivons pas à gérer le token EOF et donc le programme plante
+Class : les classes correspondantes sont faites (Class, ClassExp, UseAttribute, UseMethod) cependant par manque de temps nous n'avons pas pu les implémenter.
+
+Une pseudo-fonction affiche a été faite :
+	- affiche : permet d'afficher tout le code depuis le début avec le pretty printer
+	- affiche string : permet d'afficher la valeur d'une variable (int ou string)
